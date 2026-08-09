@@ -102,6 +102,8 @@ uid=2000(shell) gid=2000(shell) groups=...,3011(uhid),...
 ```
 
 * **You see `uhid`** → you're good, continue.
+* **You see `uid=0(root)`** → your TV gives adb root access. That also works; root can
+  open `/dev/uhid` regardless of groups.
 * **No `uhid`** → this project won't run on your TV as-is. Nothing in the later steps
   will fix it. You still have options — see
   [If your TV doesn't have `uhid`](#if-your-tv-doesnt-have-uhid) below.
@@ -215,22 +217,28 @@ voids your warranty, can break OTA updates, and can brick the device if you flas
 wrong image. Worth it for a spare box you're tinkering with; think hard before doing it
 to the family TV.
 
-### 3. `/dev/uinput` — possible, but unverified
+### 3. `/dev/uinput` — tested, and it does *not* help
 
-`uinput` is the kernel's other virtual-input mechanism. It creates an evdev device
-rather than a HID one, and Android reads evdev, so in principle a `uinput`-backed
-gamepad would be seen as a real controller.
+`uinput` is the kernel's other virtual-input mechanism, so it looks like an obvious
+way around a missing `uhid`. It isn't, and it's worth knowing why before you spend time
+on it.
 
-**I haven't confirmed this works on Android TV.** The open question is whether `shell`
-is allowed to write to `/dev/uinput` — it may be as locked down as `uhid`, and it isn't
-implemented here either way. If you want to check your device:
+Measured on an Android 12 TV (HiSilicon Hi3751V350):
 
-```bash
-adb shell 'ls -l /dev/uinput; command -v uinput'
+```
+crw-rw---- 1 uhid uhid 10, 239 /dev/uhid
+crw-rw---- 1 uhid uhid 10, 223 /dev/uinput
 ```
 
-If that looks accessible on your TV, please open an issue — that's the missing evidence
-for whether a `uinput` backend is worth building.
+**Both devices are owned by the same `uhid` user and group, with the same `0660`
+mode.** Android gates them behind the *same* group. So a TV that withholds `uhid` from
+the `shell` user withholds `/dev/uinput` in exactly the same breath — there is nothing
+to fall back to. Writing a `uinput` backend would produce a second code path that fails
+on precisely the devices it was meant to rescue.
+
+This is one device, so if yours disagrees the report is genuinely useful. But the
+identical ownership is a platform convention rather than a vendor quirk, so expect it
+to hold.
 
 ### What won't work: `adb shell input`
 
