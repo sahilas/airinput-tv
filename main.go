@@ -100,6 +100,25 @@ var buttonBits = map[string]uint{
 	"SELECT": 10, "START": 11,
 }
 
+// D-pad directions are a hat switch rather than buttons, so they index dpad[]
+// instead of setting a button bit. Kept as a map, not a switch, so that these
+// names and buttonBits together are the one machine-readable list of what a
+// skin may name — TestSkins checks every layout against exactly this set.
+var dpadIndex = map[string]int{
+	"UP": 0, "DOWN": 1, "LEFT": 2, "RIGHT": 3,
+}
+
+// knownButton reports whether setButton would act on this name. A skin naming
+// anything else is silently ignored at runtime, which is why it is worth
+// failing the build over.
+func knownButton(name string) bool {
+	if _, ok := dpadIndex[name]; ok {
+		return true
+	}
+	_, ok := buttonBits[name]
+	return ok
+}
+
 type gamepad struct {
 	fd *os.File
 
@@ -212,16 +231,9 @@ func (g *gamepad) sendReport() {
 func (g *gamepad) setButton(name string, pressed bool) {
 	g.mu.Lock()
 	defer g.mu.Unlock()
-	switch name {
-	case "UP":
-		g.dpad[0] = pressed
-	case "DOWN":
-		g.dpad[1] = pressed
-	case "LEFT":
-		g.dpad[2] = pressed
-	case "RIGHT":
-		g.dpad[3] = pressed
-	default:
+	if idx, ok := dpadIndex[name]; ok {
+		g.dpad[idx] = pressed
+	} else {
 		bit, ok := buttonBits[name]
 		if !ok {
 			return

@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build and test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+          check-latest: true
+
+      - name: go vet
+        run: go vet ./...
+
+      # Skin layouts are data, so a button named something the server does not
+      # know still renders and simply does nothing when pressed. These tests
+      # turn that silent failure into a build failure.
+      - name: Test
+        run: go test -v ./...
+
+      # The real target is 32-bit ARM, not the amd64 runner. Cross-compiling
+      # here catches anything that only breaks on the TV's architecture.
+      - name: Cross-compile for Android TV (linux/arm, GOARM=7)
+        env:
+          GOOS: linux
+          GOARCH: arm
+          GOARM: '7'
+          CGO_ENABLED: '0'
+        run: go build -ldflags="-s -w" -o airinput-tv .
+
+      - name: Check gofmt
+        run: |
+          unformatted=$(gofmt -l .)
+          if [ -n "$unformatted" ]; then
+            echo "These files need gofmt:"
+            echo "$unformatted"
+            exit 1
+          fi
