@@ -12,7 +12,7 @@ Diego CCH. The original runs the server on your computer; this one runs it **on 
 itself**, so no computer needs to stay on.
 
 ![The controller as it appears in a phone browser — dual analog sticks, D-pad, ABXY
-and shoulder buttons](docs/controller-xbox.png)
+and shoulder buttons](docs/controller-xbox.webp)
 
 <sub>What your phone shows once it connects. No app — this is just a web page.</sub>
 
@@ -151,22 +151,105 @@ below to fix that permanently.)
 ## Step 7 — Play
 
 On your phone, open the address it printed — for example `http://192.168.1.42:3000` —
-in any browser. Enter any name and tap **Unirse** (Spanish for "join" — the web client
-comes from the upstream project):
+in any browser. Type a name and tap **Connect**:
 
-![The join screen: an AirInput heading, a name field and a join button](docs/join-screen.png)
+![The join screen: an airInput heading, a name field, a Connect button and a green
+"Connected to TV" indicator](docs/join-screen.webp)
 
 The controller appears. That's it.
 
 Connect more phones to the same address and each becomes its own separate controller.
 
-Tap the ⚙️ button to switch layouts. Three ship in `public/skins/`:
+## Choosing a layout
 
-| SNES | N64 |
+Tap the ⚙️ button at the top of the screen. You can switch controller layout, turn
+vibration on or off, and toggle fullscreen.
+
+![The settings sheet, listing five controller layouts with the active one
+highlighted, plus vibration and fullscreen toggles](docs/settings.webp)
+
+Five layouts ship in `public/skins/`:
+
+| | |
 |---|---|
-| ![SNES layout](docs/controller-snes.png) | ![N64 layout](docs/controller-n64.png) |
+| **Modern** — dual sticks, D-pad, ABXY, four shoulder buttons | **Symbols** — dual sticks, shape face buttons |
+| ![Modern layout](docs/controller-xbox.webp) | ![Symbols layout](docs/controller-ps.webp) |
+| **Classic** — D-pad and four face buttons, no sticks | **Retro 3D** — single stick, C-buttons, Z trigger |
+| ![Classic layout](docs/controller-snes.webp) | ![Retro 3D layout](docs/controller-n64.webp) |
+| **Arcade** — fight-stick: one stick, six big buttons | |
+| ![Arcade layout](docs/controller-arcade.webp) | |
+
+Your choice is remembered on that phone, so each player can pick their own.
 
 **Tip:** add the page to your home screen so it opens fullscreen without browser bars.
+
+## Making your own layout
+
+A layout ("skin") is just an HTML fragment and a stylesheet in its own folder. No
+build step and no JavaScript — drop in a folder, add one line to a list, rebuild.
+
+**1. Create the folder.** Copy an existing one to start from:
+
+```bash
+cp -r public/skins/snes public/skins/myskin
+```
+
+**2. Edit `layout.html`.** Every button carries a `data-btn` attribute naming the
+control it sends. Only these names mean anything to the TV:
+
+| Kind | Valid `data-btn` values |
+|---|---|
+| D-pad | `UP` `DOWN` `LEFT` `RIGHT` |
+| Face | `A` `B` `X` `Y` |
+| Shoulders | `L` `R` `L2` `R2` |
+| Menu | `SELECT` `START` |
+
+Anything else is ignored, silently — if a button does nothing, check its spelling
+against this table first.
+
+```html
+<button data-btn="A">A</button>
+```
+
+Press two controls with one button — handy for D-pad diagonals — with `data-btns`:
+
+```html
+<button data-btns="UP,LEFT"></button>
+```
+
+For analog sticks, include one or both of these elements. Leave them out and the
+skin simply has no sticks:
+
+```html
+<div id="stick-left-zone" class="stick-zone"></div>
+<div id="stick-right-zone" class="stick-zone"></div>
+```
+
+`L2` and `R2` are also reported as analog triggers, because some games read the axis
+rather than the button.
+
+**3. Edit `style.css`.** Style your own markup. Two conventions worth keeping:
+
+* `#gamepad` is the root element — give it a width and height.
+* `button.active` is added while a control is held, so style it for press feedback.
+
+Layouts are designed landscape; the app rotates the whole pad in portrait, so you
+don't need a second set of rules.
+
+**4. Register it** in [`public/skins/skins.json`](public/skins/skins.json):
+
+```json
+{ "id": "myskin", "name": "My Layout", "blurb": "What makes it different", "sticks": 2 }
+```
+
+`id` must match the folder name. `name` and `blurb` are what the settings sheet
+shows.
+
+**5. Rebuild and deploy** — `./deploy.sh`. The web client is compiled into the
+binary with `go:embed`, so new files only appear after a rebuild.
+
+While iterating, `loadSkin('myskin')` in the browser console switches to it without
+opening the settings sheet.
 
 ## Start it automatically (optional, advanced)
 

@@ -1,0 +1,35 @@
+{
+  "_comment": "Skin registry. The in-app picker is built from this file, so adding a skin means dropping a folder next to this one and adding an entry here. See 'Making your own skin' in the README. Each id must match its folder name, which must contain layout.html and style.css.",
+  "skins": [
+    {
+      "id": "xbox",
+      "name": "Modern",
+      "blurb": "Dual sticks, D-pad, ABXY, four shoulder buttons",
+      "sticks": 2
+    },
+    {
+      "id": "ps",
+      "name": "Symbols",
+      "blurb": "Dual sticks with shape face buttons",
+      "sticks": 2
+    },
+    {
+      "id": "snes",
+      "name": "Classic",
+      "blurb": "D-pad and four face buttons, no sticks",
+      "sticks": 0
+    },
+    {
+      "id": "n64",
+      "name": "Retro 3D",
+      "blurb": "Single stick, C-buttons, Z trigger",
+      "sticks": 1
+    },
+    {
+      "id": "arcade",
+      "name": "Arcade",
+      "blurb": "Fight-stick: one stick, six big buttons",
+      "sticks": 1
+    }
+  ]
+}

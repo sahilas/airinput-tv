@@ -449,7 +449,7 @@ func handleWS(w http.ResponseWriter, r *http.Request) {
 			playersMu.Lock()
 			if activeUsernames[d.Username] {
 				playersMu.Unlock()
-				ws.sendEvent("registration_failed", fmt.Sprintf("El nombre %q ya está en uso.", d.Username))
+				ws.sendEvent("registration_failed", fmt.Sprintf("The name %q is already taken.", d.Username))
 				continue
 			}
 			activeUsernames[d.Username] = true

@@ -1,0 +1,213 @@
+/* ==========================================================================
+   Skin: "Symbols" — dual-stick pad with shape face buttons.
+   Shapes are pure CSS (borders + pseudo-elements), so the skin ships no images.
+   ========================================================================== */
+
+#gamepad {
+  width: 96%;
+  max-width: 780px;
+  height: 400px;
+  background: linear-gradient(160deg, #33363d 0%, #23252a 100%);
+  border-radius: 46px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 14px 30px rgba(0, 0, 0, .55), inset 0 1px 0 rgba(255, 255, 255, .07);
+}
+
+.face {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 30px;
+}
+
+button {
+  transition: transform .05s ease, box-shadow .05s ease, filter .05s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:active,
+button.active {
+  transform: scale(.92);
+  filter: brightness(1.35);
+}
+
+/* --- shoulders ------------------------------------------------------------ */
+.shoulders {
+  width: 100%;
+  height: 62px;
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 34px 0;
+}
+
+.shoulder-group {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.btn-shoulder,
+.btn-trigger {
+  border: none;
+  color: #e8e8ea;
+  font: 700 15px/1 sans-serif;
+  border-radius: 12px 12px 6px 6px;
+  box-shadow: 0 3px 0 rgba(0, 0, 0, .45);
+}
+
+.btn-shoulder {
+  width: 128px;
+  height: 40px;
+  background: #4a4e57;
+}
+
+.btn-trigger {
+  width: 84px;
+  height: 34px;
+  background: #3a3d45;
+}
+
+/* --- d-pad ---------------------------------------------------------------- */
+.dpad {
+  display: grid;
+  grid-template-columns: repeat(3, 44px);
+  grid-template-rows: repeat(3, 44px);
+  align-self: flex-start;
+  margin-top: 10px;
+}
+
+.dpad button,
+.dpad .center {
+  border: none;
+  background: #15161a;
+  padding: 0;
+}
+
+.dpad .up { border-radius: 12px 12px 0 0; }
+.dpad .down { border-radius: 0 0 12px 12px; }
+.dpad .left { border-radius: 12px 0 0 12px; }
+.dpad .right { border-radius: 0 12px 12px 0; }
+.dpad .center { background: #15161a; }
+
+/* Diagonals are invisible hit targets that press two directions at once. */
+.dpad .diagonal {
+  background: transparent;
+  opacity: 0;
+}
+
+/* --- start / select ------------------------------------------------------- */
+.center-cluster {
+  display: flex;
+  gap: 12px;
+  align-self: flex-start;
+  margin-top: 54px;
+}
+
+.pill-btn {
+  border: none;
+  background: #4a4e57;
+  color: #cfd2d8;
+  font: 700 11px/1 sans-serif;
+  letter-spacing: .5px;
+  padding: 9px 16px;
+  border-radius: 999px;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, .4);
+}
+
+/* --- shape buttons -------------------------------------------------------- */
+/* Sits high in the face so the shape cluster clears the analog stick below it. */
+.actions {
+  display: grid;
+  grid-template-columns: repeat(3, 58px);
+  grid-template-rows: repeat(3, 58px);
+  align-items: center;
+  justify-items: center;
+  align-self: flex-start;
+  margin-top: 6px;
+}
+
+.shape-triangle { grid-column: 2; grid-row: 1; }
+.shape-square   { grid-column: 1; grid-row: 2; }
+.shape-circle   { grid-column: 3; grid-row: 2; }
+.shape-cross    { grid-column: 2; grid-row: 3; }
+
+.shape-btn {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  border: none;
+  background: #2b2e34;
+  box-shadow: 0 3px 0 rgba(0, 0, 0, .5), inset 0 1px 0 rgba(255, 255, 255, .08);
+  position: relative;
+}
+
+.shape-btn::before,
+.shape-btn::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* triangle — green */
+.shape-triangle::before {
+  width: 0;
+  height: 0;
+  border-left: 13px solid transparent;
+  border-right: 13px solid transparent;
+  border-bottom: 22px solid #4ad6a0;
+  margin-top: -2px;
+}
+
+/* square — pink */
+.shape-square::before {
+  width: 21px;
+  height: 21px;
+  border: 3px solid #ef7fb4;
+  border-radius: 3px;
+}
+
+/* circle — red */
+.shape-circle::before {
+  width: 22px;
+  height: 22px;
+  border: 3px solid #f0605f;
+  border-radius: 50%;
+}
+
+/* cross — blue, two rotated bars */
+.shape-cross::before,
+.shape-cross::after {
+  width: 26px;
+  height: 3px;
+  background: #6aa6f5;
+  border-radius: 2px;
+}
+.shape-cross::before { transform: translate(-50%, -50%) rotate(45deg); }
+.shape-cross::after  { transform: translate(-50%, -50%) rotate(-45deg); }
+
+/* --- analog sticks -------------------------------------------------------- */
+.analog-sticks-container {
+  position: absolute;
+  bottom: 18px;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 56px;
+  pointer-events: none;
+}
+
+.stick-zone {
+  width: 118px;
+  height: 118px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .05);
+  box-shadow: inset 0 3px 10px rgba(0, 0, 0, .5);
+  pointer-events: auto;
+  position: relative;
+}
