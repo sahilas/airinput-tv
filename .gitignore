@@ -1,0 +1,9 @@
+# build output (GOARM=7 binary, ~5MB — rebuild with deploy.sh)
+/airinput-tv
+
+# macOS
+.DS_Store
+
+# scratch
+/artifacts/
+*.log
