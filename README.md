@@ -99,9 +99,9 @@ uid=2000(shell) gid=2000(shell) groups=...,3011(uhid),...
 ```
 
 * **You see `uhid`** → you're good, continue.
-* **No `uhid`** → your TV's Android version or vendor doesn't grant it, and this
-  project won't work there without root. Nothing in the later steps will fix it. Sorry —
-  this is a limitation of your TV, not a bug here.
+* **No `uhid`** → this project won't run on your TV as-is. Nothing in the later steps
+  will fix it. You still have options — see
+  [If your TV doesn't have `uhid`](#if-your-tv-doesnt-have-uhid) below.
 
 ## Step 5 — Build and install
 
@@ -174,6 +174,72 @@ that `.rc` file and reboot.
 
 Logs go to `/data/local/tmp/airinput.log`.
 
+## If your TV doesn't have `uhid`
+
+Plenty of Android TVs don't give the `shell` user access to `/dev/uhid`. It depends on
+your Android version and what the manufacturer allowed, and there's nothing this
+project can do about it from the outside.
+
+Here's what's actually open to you, most practical first.
+
+### 1. Use your phone as a Bluetooth gamepad instead
+
+This skips this project entirely, and for most people it's the right answer. A phone
+can pair with the TV as a real Bluetooth HID gamepad — no adb, no debugging mode, no
+computer. Search your phone's app store for a "Bluetooth gamepad" or "BT HID
+controller" app.
+
+Trade-off: it's a separate app rather than a web page, so it's less convenient for
+guests, and quality varies a lot between apps.
+
+### 2. Root the TV
+
+With root, `/dev/uhid` is accessible regardless of group membership, and everything in
+this README works normally.
+
+This is genuinely the only way to make *this project* run on a locked-down TV. It also
+voids your warranty, can break OTA updates, and can brick the device if you flash the
+wrong image. Worth it for a spare box you're tinkering with; think hard before doing it
+to the family TV.
+
+### 3. `/dev/uinput` — possible, but unverified
+
+`uinput` is the kernel's other virtual-input mechanism. It creates an evdev device
+rather than a HID one, and Android reads evdev, so in principle a `uinput`-backed
+gamepad would be seen as a real controller.
+
+**I haven't confirmed this works on Android TV.** The open question is whether `shell`
+is allowed to write to `/dev/uinput` — it may be as locked down as `uhid`, and it isn't
+implemented here either way. If you want to check your device:
+
+```bash
+adb shell 'ls -l /dev/uinput; command -v uinput'
+```
+
+If that looks accessible on your TV, please open an issue — that's the missing evidence
+for whether a `uinput` backend is worth building.
+
+### What won't work: `adb shell input`
+
+You'll find suggestions to use `adb shell input keyevent`. Don't bother for gaming:
+
+* It **isn't a gamepad.** It injects individual key events, so any game that looks for a
+  connected controller still sees nothing.
+* It spawns a whole process per press — far too slow for real-time play.
+
+It's fine for scripted menu navigation. It is not a controller.
+
+### Help us map this out
+
+If you run the check below and paste the output into an issue, it helps build a picture
+of which TVs work:
+
+```bash
+adb shell 'id; ls -l /dev/uhid /dev/uinput 2>&1; command -v uinput; getprop ro.product.model; getprop ro.build.version.release'
+```
+
+Reports from TVs that **don't** work are just as useful as ones that do.
+
 ## Troubleshooting
 
 | Problem | Fix |
@@ -181,7 +247,7 @@ Logs go to `/data/local/tmp/airinput.log`.
 | `adb: command not found` | adb isn't installed — see *Before you start* |
 | `device unauthorized` | Look at the TV screen and accept the prompt, then re-run `adb connect` |
 | `adb connect` just hangs | Wrong IP, or debugging is off. Redo steps 1–2. Some TVs turn debugging off after a reboot. |
-| No `uhid` in `adb shell id` | Your TV doesn't allow it. This project can't work there without root — see step 4. |
+| No `uhid` in `adb shell id` | Your TV doesn't allow it — see [If your TV doesn't have `uhid`](#if-your-tv-doesnt-have-uhid) |
 | `open /dev/uhid: permission denied` | Same cause as above |
 | Server starts, phone page won't load | Phone and TV must be on the **same WiFi**. Guest networks and "client isolation" block this. |
 | Page loads but buttons do nothing | Check the terminal from step 6 — it logs each controller connecting |
@@ -200,7 +266,9 @@ Logs go to `/data/local/tmp/airinput.log`.
 ## Contributing
 
 Issues and pull requests welcome — especially reports of which TV models do and don't
-grant `uhid`, since that's the main thing that decides whether this works.
+grant `uhid`, since that's the single thing that decides whether this works at all.
+There's a one-line diagnostic to paste under
+[Help us map this out](#help-us-map-this-out).
 
 ## License
 
