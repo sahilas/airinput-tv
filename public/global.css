@@ -18,12 +18,16 @@ html, body {
   background: #202020;
 }
 
-body { 
+body {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   font-family: sans-serif;
+  /* The dark background above is set without a text colour, so anything not
+     explicitly coloured (the join screen heading) inherits the browser default
+     black and is unreadable. */
+  color: #f0f0f0;
 }
 
 #start-overlay { 

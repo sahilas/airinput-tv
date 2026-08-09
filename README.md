@@ -11,7 +11,10 @@ This is an Android TV port of [airInput](https://github.com/DiegoCChumbi/airInpu
 Diego CCH. The original runs the server on your computer; this one runs it **on the TV
 itself**, so no computer needs to stay on.
 
-<!-- A screenshot or short GIF here would help a lot. -->
+![The controller as it appears in a phone browser — dual analog sticks, D-pad, ABXY
+and shoulder buttons](docs/controller-xbox.png)
+
+<sub>What your phone shows once it connects. No app — this is just a web page.</sub>
 
 ## How it works
 
@@ -146,10 +149,20 @@ below to fix that permanently.)
 ## Step 7 — Play
 
 On your phone, open the address it printed — for example `http://192.168.1.42:3000` —
-in any browser. The controller appears. That's it.
+in any browser. Enter any name and tap **Unirse** (Spanish for "join" — the web client
+comes from the upstream project):
+
+![The join screen: an AirInput heading, a name field and a join button](docs/join-screen.png)
+
+The controller appears. That's it.
 
 Connect more phones to the same address and each becomes its own separate controller.
-There are several controller layouts (SNES, N64, Xbox) in `public/skins/`.
+
+Tap the ⚙️ button to switch layouts. Three ship in `public/skins/`:
+
+| SNES | N64 |
+|---|---|
+| ![SNES layout](docs/controller-snes.png) | ![N64 layout](docs/controller-n64.png) |
 
 **Tip:** add the page to your home screen so it opens fullscreen without browser bars.
 
